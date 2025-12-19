@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Location Tracker - Map View</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎵 Sound Location Tracker</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-label">Active Devices:</span>
+                    <span class="stat-value" id="activeDevices">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Detections:</span>
+                    <span class="stat-value" id="totalDetections">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Last Update:</span>
+                    <span class="stat-value" id="lastUpdate">-</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+
+            <!-- Sidebar for Device Info -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <h2>Device Information</h2>
+                    <button class="close-btn" id="closeSidebar">&times;</button>
+                </div>
+                
+                <div class="sidebar-content" id="sidebarContent">
+                    <p class="no-selection">Click on a device marker to view details</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn btn-primary" id="refreshBtn">🔄 Refresh</button>
+            <button class="btn btn-secondary" id="autoRefreshBtn">⏸️ Auto-Refresh: ON</button>
+            <button class="btn btn-secondary" id="centerMapBtn">🎯 Center Map</button>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="/js/map.js"></script>
+</body>
+</html>

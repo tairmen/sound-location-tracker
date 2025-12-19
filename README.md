@@ -10,6 +10,9 @@ A Node.js server application for tracking sound location based on multiple mobil
 - RESTful API endpoints
 - Real-time console logging
 - Detection history tracking
+- **Interactive web map interface with OpenStreetMap**
+- **Visual device tracking and monitoring**
+- **Click-to-view device history and current detections**
 
 ## Prerequisites
 
@@ -73,6 +76,24 @@ npm start
 ```
 
 The server will start on `http://localhost:3000`
+
+## Web Interface
+
+Open your browser and navigate to:
+```
+http://localhost:3000
+```
+
+The web interface provides:
+- **Interactive Map**: View all devices on an OpenStreetMap
+- **Real-time Updates**: Auto-refresh every 5 seconds (can be toggled)
+- **Device Status**: Green markers for active detections, gray for inactive
+- **Click for Details**: Click any device marker to view:
+  - Device information
+  - Current detection status
+  - Full detection history
+  - Sound power update charts
+- **Statistics Dashboard**: View active devices and total detections at a glance
 
 ## API Endpoints
 
@@ -209,6 +230,58 @@ Retrieves detailed history of a specific detection including all power updates.
         "detection_id": 1,
         "sound_power": 80.2,
         "recorded_at": "2025-12-19T10:30:15.000Z"
+      }
+    ]
+  }
+}
+```
+
+### 6. Get All Devices (Web Interface Endpoint)
+**GET** `/api/devices`
+
+Retrieves all devices with their latest detection status and location.
+
+**Response:**
+```json
+{
+  "success": true,
+  "count": 3,
+  "data": [
+    {
+      "device_id": "device123",
+      "detection_id": 1,
+      "latitude": 40.7128,
+      "longitude": -74.0060,
+      "sound_power": 80.2,
+      "is_active": true,
+      "detected_at": "2025-12-19T10:30:00.000Z"
+    }
+  ]
+}
+```
+
+### 7. Get Device History (Web Interface Endpoint)
+**GET** `/api/devices/:deviceId/history`
+
+Retrieves full detection history for a specific device with power updates.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "device": {
+      "device_id": "device123",
+      "created_at": "2025-12-19T10:00:00.000Z"
+    },
+    "detections": [
+      {
+        "id": 1,
+        "latitude": 40.7128,
+        "longitude": -74.0060,
+        "sound_power": 80.2,
+        "is_active": true,
+        "powerHistory": [...]
       }
     ]
   }

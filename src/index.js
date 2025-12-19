@@ -1,9 +1,11 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 const soundRoutes = require('./routes/soundRoutes');
+const deviceRoutes = require('./routes/deviceRoutes');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -17,6 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 // HTTP request logging
 app.use(morgan('dev'));
 
+// Serve static files
+app.use(express.static(path.join(__dirname, '../public')));
+
 // Custom request logger
 app.use((req, res, next) => {
     logger.info(`${req.method} ${req.path} - From: ${req.ip}`);
@@ -25,6 +30,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api', soundRoutes);
+app.use('/api', deviceRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -35,13 +41,17 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
+// Root endpoint - serve the web interface
+app.get('/api', (req, res) => {
     res.json({
         message: 'Sound Location Tracker API',
         version: '1.0.0',
         endpoints: {
             health: 'GET /health',
+            webInterface: 'GET /',
+            devices: 'GET /api/devices',
+            deviceHistory: 'GET /api/devices/:deviceId/history',
+            activeDevices: 'GET /api/devices/active/list',
             startDetection: 'POST /api/detection/start',
             updatePower: 'PUT /api/detection/update',
             endDetection: 'POST /api/detection/end',

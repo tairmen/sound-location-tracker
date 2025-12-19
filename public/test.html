@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Location Tracker - Quick Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5568d3;
+        }
+        .output {
+            background: #2c3e50;
+            color: #2ecc71;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .link {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            padding: 10px 20px;
+            background: #e8eaf6;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .link:hover {
+            background: #d1d5f7;
+        }
+        .status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎵 Sound Location Tracker - Quick Test</h1>
+        <p>Test the API and visualize devices on the map</p>
+
+        <div class="section">
+            <h3>Step 1: Check Server Status</h3>
+            <button onclick="checkServer()">🔍 Check Server</button>
+            <div id="serverStatus"></div>
+        </div>
+
+        <div class="section">
+            <h3>Step 2: Send Test Data</h3>
+            <button onclick="runQuickTest()">🧪 Run Quick Test</button>
+            <button onclick="clearAllTests()">🗑️ Clear Output</button>
+            <div id="testOutput" class="output" style="display:none;"></div>
+        </div>
+
+        <div class="section">
+            <h3>Step 3: View Map Interface</h3>
+            <a href="/" class="link" target="_blank">🗺️ Open Map Interface</a>
+            <p style="margin-top: 10px; color: #7f8c8d;">
+                The map will show all devices with their detection status. 
+                Click on markers to view detailed history.
+            </p>
+        </div>
+
+        <div class="section">
+            <h3>📚 Available Endpoints</h3>
+            <ul style="line-height: 2;">
+                <li><code>POST /api/detection/start</code> - Start detection</li>
+                <li><code>PUT /api/detection/update</code> - Update power</li>
+                <li><code>POST /api/detection/end</code> - End detection</li>
+                <li><code>GET /api/devices</code> - Get all devices</li>
+                <li><code>GET /api/devices/:id/history</code> - Device history</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        async function checkServer() {
+            const statusDiv = document.getElementById('serverStatus');
+            statusDiv.innerHTML = '<p>Checking...</p>';
+
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (data.status === 'OK') {
+                    statusDiv.innerHTML = `
+                        <p style="margin-top: 15px;">
+                            <span class="status success">✅ Server is running</span>
+                        </p>
+                        <p style="margin-top: 10px; color: #7f8c8d;">
+                            Service: ${data.service}<br>
+                            Time: ${new Date(data.timestamp).toLocaleString()}
+                        </p>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p style="margin-top: 15px;">
+                        <span class="status error">❌ Server is not running</span>
+                    </p>
+                    <p style="margin-top: 10px; color: #721c24;">
+                        Please start the server: <code>npm run dev</code>
+                    </p>
+                `;
+            }
+        }
+
+        async function runQuickTest() {
+            const output = document.getElementById('testOutput');
+            output.style.display = 'block';
+            output.innerHTML = '';
+            
+            function log(message, type = 'info') {
+                const timestamp = new Date().toLocaleTimeString();
+                const color = type === 'success' ? '#2ecc71' : type === 'error' ? '#e74c3c' : '#3498db';
+                output.innerHTML += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+                output.scrollTop = output.scrollHeight;
+            }
+
+            log('🧪 Starting quick test...', 'info');
+
+            try {
+                // Test 1: Start detection for device 1
+                log('📍 Device 1: Starting detection at Times Square...', 'info');
+                const start1 = await fetch(`${API_BASE}/detection/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deviceId: 'test-device-001',
+                        latitude: 40.7580,
+                        longitude: -73.9855,
+                        soundPower: 75.5
+                    })
+                });
+                const result1 = await start1.json();
+                log(`✅ Detection started: ID ${result1.data?.id}`, 'success');
+
+                await sleep(500);
+
+                // Test 2: Start detection for device 2
+                log('📍 Device 2: Starting detection at Central Park...', 'info');
+                const start2 = await fetch(`${API_BASE}/detection/start`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deviceId: 'test-device-002',
+                        latitude: 40.7614,
+                        longitude: -73.9776,
+                        soundPower: 82.3
+                    })
+                });
+                const result2 = await start2.json();
+                log(`✅ Detection started: ID ${result2.data?.id}`, 'success');
+
+                await sleep(500);
+
+                // Test 3: Update power for device 1
+                log('📊 Device 1: Updating sound power...', 'info');
+                const update1 = await fetch(`${API_BASE}/detection/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        deviceId: 'test-device-001',
+                        soundPower: 78.2
+                    })
+                });
+                await update1.json();
+                log('✅ Power updated to 78.2 dB', 'success');
+
+                await sleep(500);
+
+                // Test 4: Get all devices
+                log('📱 Fetching all devices...', 'info');
+                const devices = await fetch(`${API_BASE}/devices`);
+                const devicesData = await devices.json();
+                log(`✅ Found ${devicesData.count} devices`, 'success');
+
+                log('', 'info');
+                log('🎉 Test completed successfully!', 'success');
+                log('🗺️ Now open the map interface to see the devices', 'info');
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`, 'error');
+                log('💡 Make sure PostgreSQL is running and migrated', 'error');
+            }
+        }
+
+        function clearAllTests() {
+            document.getElementById('testOutput').innerHTML = '';
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // Auto-check server on load
+        window.addEventListener('load', checkServer);
+    </script>
+</body>
+</html>
