@@ -1,0 +1,23 @@
+{
+  "name": "sound-location-tracker",
+  "version": "1.0.0",
+  "description": "Server for tracking sound location based on multiple mobile device detections",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "db:migrate": "node src/database/migrate.js"
+  },
+  "author": "T",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "pg": "^8.11.3",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
