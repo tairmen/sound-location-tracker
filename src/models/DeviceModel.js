@@ -11,6 +11,7 @@ class DeviceModel {
                 sd.latitude,
                 sd.longitude,
                 sd.sound_power,
+                sd.direction_azimuth,
                 sd.detected_at,
                 sd.ended_at,
                 sd.is_active,

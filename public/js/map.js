@@ -110,28 +110,43 @@ function updateMarkers(devices) {
 // Add a marker for a device
 function addDeviceMarker(device) {
     const isActive = device.is_active;
-    
+    const azimuth = device.direction_azimuth != null ? parseFloat(device.direction_azimuth) : null;
+
+    // SVG direction arrow when azimuth is available
+    let arrowHTML = '';
+    if (azimuth !== null) {
+        const az_rad = azimuth * Math.PI / 180;
+        const ex = (20 + Math.sin(az_rad) * 17).toFixed(1);
+        const ey = (20 - Math.cos(az_rad) * 17).toFixed(1);
+        arrowHTML = `<svg style="position:absolute;top:0;left:0;pointer-events:none" width="40" height="40">
+            <line x1="20" y1="20" x2="${ex}" y2="${ey}" stroke="#e74c3c" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="${ex}" cy="${ey}" r="3.5" fill="#e74c3c"/>
+        </svg>`;
+    }
+
     // Custom icon based on status
     const icon = L.divIcon({
         className: 'custom-marker',
         html: `
-            <div style="
-                background: ${isActive ? '#2ecc71' : '#95a5a6'};
-                width: 30px;
-                height: 30px;
-                border-radius: 50%;
-                border: 3px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 16px;
-            ">
-                ${isActive ? '🔊' : '📍'}
+            <div style="position:relative;width:40px;height:40px;">
+                ${arrowHTML}
+                <div style="
+                    position:absolute;top:5px;left:5px;
+                    background: ${isActive ? '#2ecc71' : '#95a5a6'};
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 16px;
+                ">${isActive ? '🔊' : '📍'}</div>
             </div>
         `,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     });
 
     const marker = L.marker([device.latitude, device.longitude], { icon })
@@ -153,6 +168,7 @@ function createPopupContent(device) {
             <h4>Device: ${device.device_id}</h4>
             <p><strong>Status:</strong> ${status}</p>
             ${device.sound_power ? `<p><strong>Sound Power:</strong> ${device.sound_power} dB</p>` : ''}
+            ${device.direction_azimuth != null ? `<p><strong>🧭 Azimuth:</strong> ${parseFloat(device.direction_azimuth).toFixed(1)}°</p>` : ''}
             ${device.detected_at ? `<p><strong>Detected:</strong> ${new Date(device.detected_at).toLocaleString()}</p>` : ''}
             <p style="margin-top: 0.5rem;"><em>Click marker for full details</em></p>
         </div>
@@ -231,6 +247,14 @@ function renderDeviceDetails(data) {
                     <span class="info-label">Duration:</span>
                     <span class="info-value">${calculateDuration(activeDetection.detected_at)}</span>
                 </div>
+                ${activeDetection.direction_azimuth != null ? `
+                <div class="info-item">
+                    <span class="info-label">🧭 Direction (Azimuth):</span>
+                    <span class="info-value">${parseFloat(activeDetection.direction_azimuth).toFixed(1)}°</span>
+                </div>
+                <div class="info-item compass-row">
+                    ${renderCompass(activeDetection.direction_azimuth)}
+                </div>` : ''}
         `;
 
         if (activeDetection.powerHistory && activeDetection.powerHistory.length > 0) {
@@ -298,6 +322,11 @@ function renderDetection(detection) {
                     <span class="detail-label">Longitude</span>
                     <span class="detail-value">${parseFloat(detection.longitude).toFixed(6)}</span>
                 </div>
+                ${detection.direction_azimuth != null ? `
+                <div class="detection-detail" style="grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 0.5rem;">
+                    <span class="detail-label">🧭 Azimuth</span>
+                    <span class="detail-value">${parseFloat(detection.direction_azimuth).toFixed(1)}°</span>
+                </div>` : ''}
             </div>
             ${detection.powerHistory && detection.powerHistory.length > 1 ? `
                 <div class="power-chart">
@@ -306,6 +335,31 @@ function renderDetection(detection) {
                     ${detection.powerHistory.length > 5 ? `<p style="font-size: 0.75rem; color: #95a5a6; margin-top: 0.5rem;">+ ${detection.powerHistory.length - 5} more updates</p>` : ''}
                 </div>
             ` : ''}
+        </div>
+    `;
+}
+
+// Render compass widget SVG
+function renderCompass(azimuth) {
+    const az = parseFloat(azimuth);
+    const az_rad = az * Math.PI / 180;
+    const nx = (30 + Math.sin(az_rad) * 20).toFixed(1);
+    const ny = (30 - Math.cos(az_rad) * 20).toFixed(1);
+    const sx = (30 - Math.sin(az_rad) * 10).toFixed(1);
+    const sy = (30 + Math.cos(az_rad) * 10).toFixed(1);
+    return `
+        <div class="compass-widget">
+            <svg viewBox="0 0 60 60" width="70" height="70">
+                <circle cx="30" cy="30" r="27" fill="#f8f9fa" stroke="#e0e0e0" stroke-width="1.5"/>
+                <text x="30" y="9" text-anchor="middle" fill="#667eea" font-size="8" font-weight="bold" font-family="sans-serif">N</text>
+                <text x="30" y="55" text-anchor="middle" fill="#95a5a6" font-size="7" font-family="sans-serif">S</text>
+                <text x="55" y="33" text-anchor="middle" fill="#95a5a6" font-size="7" font-family="sans-serif">E</text>
+                <text x="5" y="33" text-anchor="middle" fill="#95a5a6" font-size="7" font-family="sans-serif">W</text>
+                <line x1="${sx}" y1="${sy}" x2="30" y2="30" stroke="#bdc3c7" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="30" y1="30" x2="${nx}" y2="${ny}" stroke="#e74c3c" stroke-width="2.5" stroke-linecap="round"/>
+                <circle cx="30" cy="30" r="3" fill="#2c3e50"/>
+            </svg>
+            <span class="compass-azimuth">${az.toFixed(1)}°</span>
         </div>
     `;
 }

@@ -343,6 +343,26 @@ header h1 {
     min-width: 50px;
 }
 
+/* Compass Widget */
+.compass-row {
+    justify-content: center;
+    background: transparent;
+    padding: 0.5rem 0;
+}
+
+.compass-widget {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.compass-azimuth {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #e74c3c;
+    letter-spacing: 0.03em;
+}
+
 /* Loading State */
 .loading {
     text-align: center;
