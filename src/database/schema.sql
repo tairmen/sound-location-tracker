@@ -14,12 +14,16 @@ CREATE TABLE IF NOT EXISTS sound_detections (
     latitude DECIMAL(10, 8) NOT NULL,
     longitude DECIMAL(11, 8) NOT NULL,
     sound_power DECIMAL(10, 2) NOT NULL,
+    direction_azimuth DECIMAL(5, 2) DEFAULT NULL,
     detected_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ended_at TIMESTAMP,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Add direction_azimuth to existing tables (safe for re-runs)
+ALTER TABLE sound_detections ADD COLUMN IF NOT EXISTS direction_azimuth DECIMAL(5, 2) DEFAULT NULL;
 
 -- Table to store sound power updates during active detection
 CREATE TABLE IF NOT EXISTS sound_power_updates (

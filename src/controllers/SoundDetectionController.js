@@ -5,7 +5,7 @@ class SoundDetectionController {
     // Endpoint 1: Initial sound detection
     static async startDetection(req, res) {
         try {
-            const { deviceId, latitude, longitude, soundPower } = req.body;
+            const { deviceId, latitude, longitude, soundPower, directionAzimuth } = req.body;
 
             // Validate input
             if (!deviceId || latitude === undefined || longitude === undefined || soundPower === undefined) {
@@ -29,15 +29,19 @@ class SoundDetectionController {
                 });
             }
 
+            const azimuth = directionAzimuth !== undefined ? parseFloat(directionAzimuth) : null;
+
             // Create new detection
             const detection = await SoundDetectionModel.createDetection(
                 deviceId,
                 latitude,
                 longitude,
-                soundPower
+                soundPower,
+                azimuth
             );
 
-            logger.info(`🎵 NEW DETECTION | Device: ${deviceId} | Location: (${latitude}, ${longitude}) | Power: ${soundPower} dB | Detection ID: ${detection.id}`);
+            const azimuthText = azimuth !== null ? ` | Azimuth: ${azimuth}°` : '';
+            logger.info(`🎵 NEW DETECTION | Device: ${deviceId} | Location: (${latitude}, ${longitude}) | Power: ${soundPower} dB${azimuthText} | Detection ID: ${detection.id}`);
 
             res.status(201).json({
                 success: true,
@@ -56,7 +60,7 @@ class SoundDetectionController {
     // Endpoint 2: Update sound power during active detection
     static async updateSoundPower(req, res) {
         try {
-            const { deviceId, soundPower } = req.body;
+            const { deviceId, soundPower, directionAzimuth } = req.body;
 
             // Validate input
             if (!deviceId || soundPower === undefined) {
@@ -75,13 +79,17 @@ class SoundDetectionController {
                 });
             }
 
+            const azimuth = directionAzimuth !== undefined ? parseFloat(directionAzimuth) : null;
+
             // Update sound power
             const updatedDetection = await SoundDetectionModel.updateSoundPower(
                 activeDetection.id,
-                soundPower
+                soundPower,
+                azimuth
             );
 
-            logger.info(`📊 POWER UPDATE | Device: ${deviceId} | Detection ID: ${activeDetection.id} | New Power: ${soundPower} dB`);
+            const azimuthText = azimuth !== null ? ` | Azimuth: ${azimuth}°` : '';
+            logger.info(`📊 POWER UPDATE | Device: ${deviceId} | Detection ID: ${activeDetection.id} | New Power: ${soundPower} dB${azimuthText}`);
 
             res.status(200).json({
                 success: true,

@@ -15,14 +15,14 @@ class SoundDetectionModel {
     }
 
     // Create new sound detection
-    static async createDetection(deviceId, latitude, longitude, soundPower) {
+    static async createDetection(deviceId, latitude, longitude, soundPower, directionAzimuth = null) {
         const query = `
             INSERT INTO sound_detections 
-            (device_id, latitude, longitude, sound_power, is_active)
-            VALUES ($1, $2, $3, $4, TRUE)
+            (device_id, latitude, longitude, sound_power, direction_azimuth, is_active)
+            VALUES ($1, $2, $3, $4, $5, TRUE)
             RETURNING *
         `;
-        const result = await pool.query(query, [deviceId, latitude, longitude, soundPower]);
+        const result = await pool.query(query, [deviceId, latitude, longitude, soundPower, directionAzimuth ?? null]);
         return result.rows[0];
     }
 
@@ -39,7 +39,7 @@ class SoundDetectionModel {
     }
 
     // Update sound power for active detection
-    static async updateSoundPower(detectionId, soundPower) {
+    static async updateSoundPower(detectionId, soundPower, directionAzimuth = null) {
         const client = await pool.connect();
         
         try {
@@ -48,11 +48,13 @@ class SoundDetectionModel {
             // Update the main detection record
             const updateQuery = `
                 UPDATE sound_detections
-                SET sound_power = $1, updated_at = CURRENT_TIMESTAMP
+                SET sound_power = $1,
+                    direction_azimuth = COALESCE($3, direction_azimuth),
+                    updated_at = CURRENT_TIMESTAMP
                 WHERE id = $2 AND is_active = TRUE
                 RETURNING *
             `;
-            const updateResult = await client.query(updateQuery, [soundPower, detectionId]);
+            const updateResult = await client.query(updateQuery, [soundPower, detectionId, directionAzimuth ?? null]);
 
             // Record the power update in history
             const historyQuery = `
