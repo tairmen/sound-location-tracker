@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Установка ML-Detector</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f0f0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      border-radius: 16px;
+      max-width: 560px;
+      width: 100%;
+      padding: 32px;
+    }
+    h1 { font-size: 22px; margin-bottom: 8px; color: #fff; }
+    .subtitle { color: #888; font-size: 14px; margin-bottom: 28px; }
+    .step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      align-items: flex-start;
+    }
+    .step-num {
+      background: #2563eb;
+      color: #fff;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      min-width: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .step-body { flex: 1; }
+    .step-body p { font-size: 15px; line-height: 1.5; }
+    .step-body a { color: #60a5fa; }
+    .cmd-block {
+      background: #0d0d0d;
+      border: 1px solid #333;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-top: 10px;
+      position: relative;
+    }
+    .cmd-block code {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #4ade80;
+      word-break: break-all;
+      display: block;
+      padding-right: 80px;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .copy-btn:hover { background: #1d4ed8; }
+    .copy-btn.copied { background: #16a34a; }
+    .note {
+      background: #1e2a1e;
+      border: 1px solid #2d4a2d;
+      border-radius: 8px;
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #86efac;
+      margin-top: 24px;
+    }
+    .badge {
+      display: inline-block;
+      background: #292929;
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 2px 8px;
+      font-size: 12px;
+      color: #ccc;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📱 Установка ML-Detector</h1>
+    <p class="subtitle">Автоматическая установка на Android-телефон через Termux</p>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <p>Установить с <a href="https://f-droid.org" target="_blank">F-Droid</a>:</p>
+        <span class="badge">Termux</span>
+        <span class="badge">Termux:API</span>
+        <span class="badge">Termux:Widget</span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <p>Открыть <b>Termux</b> и вставить команду:</p>
+        <div class="cmd-block">
+          <code id="install-cmd">curl -fsSL http://157.230.121.197:3777/detector/setup.sh | bash</code>
+          <button class="copy-btn" onclick="copyCmd()">Копировать</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <p>После установки: добавить виджет <b>Termux:Widget</b> на рабочий стол → выбрать <b>Detector</b>.</p>
+        <p style="margin-top:6px; color:#888; font-size:13px;">Теперь детектор запускается одной кнопкой.</p>
+      </div>
+    </div>
+
+    <div class="note">
+      ⚡ Установка займёт 3–5 минут. Все файлы будут сохранены в <code style="color:#86efac">~/ML-Detector/</code>
+    </div>
+  </div>
+
+  <script>
+    function copyCmd() {
+      const text = document.getElementById('install-cmd').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = '✓ Скопировано';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Копировать';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
+</body>
+</html>

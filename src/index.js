@@ -19,8 +19,18 @@ app.use(express.urlencoded({ extended: true }));
 // HTTP request logging
 app.use(morgan('dev'));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../public')));
+// Serve static files (with correct MIME types for Termux/curl downloads)
+app.use(express.static(path.join(__dirname, '../public'), {
+    setHeaders(res, filePath) {
+        if (filePath.endsWith('.sh')) {
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        } else if (filePath.endsWith('.onnx') || filePath.endsWith('.tflite')) {
+            res.setHeader('Content-Type', 'application/octet-stream');
+        } else if (path.basename(filePath) === '.env') {
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        }
+    }
+}));
 
 // Custom request logger
 app.use((req, res, next) => {
